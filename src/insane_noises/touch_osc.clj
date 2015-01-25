@@ -14,4 +14,22 @@
 ; remove the listener
 (osc-rm-listener server :debug)
 
-; add
+; add a listener for a specific path
+(osc-handle server "/1/fader6" (fn [msg] (println msg)))
+
+; define a sine wave
+(definst foo [freq 440] (sin-osc freq))
+
+; define the control
+(defn control-foo
+  [val]
+  (let [val (scale-range val 0 1 50 1000)]
+    (ctl foo :freq val)))
+
+; compose listener, controller and sine wave
+(osc-handle server "/1/fader6" (fn [msg] (control-foo (first (:args msg)))))
+
+; trigger foo
+(foo)
+
+(stop)
