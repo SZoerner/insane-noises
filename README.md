@@ -1,14 +1,13 @@
 # insane-noises
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure project to mash up all the live coding goodness Clojure has to offer.
 
 ## Usage
 
-FIXME
+Using Overtone, Quil and Shadertone for live programming
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the MIT License
