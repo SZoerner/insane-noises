@@ -13,15 +13,15 @@
    in clojure return lazy sequences. In some cases, we force lazy-evaluation for side-effects with
    (dorun).
 
-   Since the visualization is of a stream of states for the automata, lazy-sequences are a very apt model. 
+   Since the visualization is of a stream of states for the automata, lazy-sequences are a very apt model.
    We can define a sequence of all future results, and simply iterate our way toward where we'd like to be.
    At a high level this library revolves around a single lazy seq that represents all future states.
 
    The rendering model here is quite simple, we use pure clojure to fill a 2D array of 1s and 0s that contains
    the current on-screen state. This 2D buffer is, itself, a partition (e.g. slice) of the lazy sequence of all
    future states. See the run-rule function for more detail.
-   
-   The core functions behind the laziness are (run-rule) which sets up the initial state and UI, 
+
+   The core functions behind the laziness are (run-rule) which sets up the initial state and UI,
    (simulation), which returns a lazy sequence of results,
    and (simulate) which does the legwork of applying the automaton's rules.
 
@@ -109,7 +109,7 @@
   (let [new-state (simulate rule-fn state)]
     ;; This is an infinitely recursive lazy sequence! Notice how we start
     ;; by considing (prepending) to a new-state onto the head of a not-yet extant
-    ;; lazy sequence. 
+    ;; lazy sequence.
     ;; You'll notice that the lazy sequence is declared with a
     ;; body that will recurse from the present state, passing the current state into
     ;; itself. Lazy sequences such as this are inherently tail-recursive, so they won't
@@ -171,6 +171,7 @@
               (swap! time-slices (fn [_] (rest @time-slices))))
       :size [(* scale width) (* scale height)])))
 
-(defn -main [rule-num & args]
+(defn main [rule-num & args]
   (run-rule (Integer/valueOf rule-num)
             {:width 100 :height 100 :scale 4}))
+(main 30)

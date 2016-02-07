@@ -6,7 +6,7 @@
 ;; boot the server
 (use 'overtone.live)
 
-(definst c-hat [amp 0.8 t 0.04]
+(definst c-hat [amp 0.8 t 0.02]
   (let [env (env-gen (perc 0.001 t) 1 1 0 1 FREE)
         noise (white-noise)
         sqr (* (env-gen (perc 0.01 0.04)) (pulse 880 0.2))

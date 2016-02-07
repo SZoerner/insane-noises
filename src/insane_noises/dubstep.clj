@@ -1,5 +1,5 @@
-(ns insane_noises.dubstep
-  (:use [overtone.core]))
+(ns insane-noises.dubstep
+  (:use [overtone.live]))
 
 (defsynth dubstep [bpm 120 wobble 1 note 50 snare-vol 1 kick-vol 1 v 1 out-bus 0]
   (let [trig (impulse:kr (/ bpm 120))
@@ -22,89 +22,9 @@
 
     (out out-bus    (* v (clip2 (+ wob (* kick-vol kick) (* snare-vol snare)) 1)))))
 
-(comment
-  ;;Control the dubstep synth with the following:
-  )
+;;Control the dubstep synth with the following:
 (def d (dubstep))
-(ctl d :wobble 4)
-(ctl d :note 30)
+(ctl d :wobble 2)
+(ctl d :note 50)
 (ctl d :bpm 250)
 (stop)
-
-
-(comment
-  ;;For connecting with a monome to control the wobble and note
-  (require '(polynome [core :as poly]))
-  (def m (poly/init "/dev/tty.usbserial-m64-0790"))
-  (def notes (reverse [25 27 28 35 40 41 50 78]))
-  (poly/on-press m (fn [x y s]
-                     (do
-                       (let [wobble (inc y)
-                             note (nth notes x)]
-                         (println "wobble:" wobble)
-                         (println "note:" note)
-                         (poly/clear m)
-                         (poly/led-on m x y)
-                         (ctl dubstep :wobble wobble)
-                         (ctl dubstep :note note)))))
-  (poly/disconnect m))
-
-(comment
-  ;;For connecting with a monome to drive two separate dubstep bass synths
-  (do
-    (require '(polynome [core :as poly]))
-    (def m (poly/init "/dev/tty.usbserial-m64-0790"))
-    (def curr-vals (atom {:b1 [0 0]
-                          :b2 [5 0]}))
-    (def curr-vol-b1 (atom 1))
-    (def curr-vol-b2 (atom 1))
-
-    (at (+ 1000 (now))
-        (def b1 (dubstep))
-        (def b2 (dubstep)))
-
-    (defn swap-vol
-      [v]
-      (mod (inc v) 2))
-
-    (defn fetch-note
-      [base idx]
-      (+ base (nth-interval :minor-pentatonic idx)))
-
-    (defn relight
-      []
-      (poly/clear m)
-      (apply poly/led-on m (:b1 @curr-vals))
-      (apply poly/led-on m (:b2 @curr-vals)))
-
-    (defn low-bass
-      [x y]
-      (println "low" [x y])
-      (if (= [x y]
-             (:b1 @curr-vals))
-        (ctl b1 :v (swap! curr-vol-b1 swap-vol))
-        (do
-          (ctl b1 :wobble (inc x) :note (fetch-note 20 y))
-          (swap! curr-vals assoc :b1 [x y])))
-      (relight))
-
-    (defn hi-bass
-      [x y]
-      (println "hi" [x y])
-      (if (= [x y]
-             (:b2 @curr-vals))
-        (ctl b2 :v (swap! curr-vol-b2 swap-vol))
-        (do
-          (ctl b2 :wobble (- x 3) :note (fetch-note 40 y))
-          (swap! curr-vals assoc :b2 [x y])))
-      (relight))
-
-    (poly/on-press m (fn [x y s]
-                       (if (< x 4)
-                         (apply #'low-bass [x y])
-                         (apply #'hi-bass [x y]))))
-
-    (poly/on-press m (fn [x y s]
-                       (poly/toggle-led m x y)))))
-
-;;(stop)
